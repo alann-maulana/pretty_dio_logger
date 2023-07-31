@@ -94,7 +94,7 @@ class PrettyDioLogger extends Interceptor {
         final uri = err.response?.requestOptions.uri;
         _printBoxed(
             header:
-                'DioError ║ Status: ${err.response?.statusCode} ${err.response?.statusMessage}',
+                'DioException ║ Status: ${err.response?.statusCode} ${err.response?.statusMessage}',
             text: uri.toString());
         if (err.response != null && err.response?.data != null) {
           logPrint('╔ ${err.type.toString()}');
@@ -103,7 +103,21 @@ class PrettyDioLogger extends Interceptor {
         _printLine('╚');
         logPrint('');
       } else {
-        _printBoxed(header: 'DioError ║ ${err.type}', text: err.message);
+        final method = err.requestOptions.method;
+        final uri = err.requestOptions.uri;
+        _printBoxed(
+          header: 'Response ║ $method ║ ${err.type} - ${err.message}',
+          text: uri.toString(),
+        );
+        if (err.error != null) {
+          logPrint('╔ ${err.error}');
+          _printList(
+            err.stackTrace.toString().split('\n'),
+            tabs: -2,
+          );
+          _printLine('╚');
+          logPrint('');
+        }
       }
     }
     super.onError(err, handler);
